@@ -51,8 +51,9 @@ CMeshEditorDoc::CMeshEditorDoc()
 {
 //  InitConsole();
 	polyMesh = NULL;
-	smoother = NULL;
-	parameterSet2 = NULL;
+	smoother = new Smoother();
+	parameterSet1 = new ParameterSetDlg1();
+	parameterSet2 = new ParameterSetDlg2();
 	processViewerDlg = NULL;
 }
 
@@ -62,10 +63,10 @@ CMeshEditorDoc::~CMeshEditorDoc()
 		delete polyMesh;
 	if(smoother != NULL)
 		delete smoother;
+	if(parameterSet1 != NULL)
+		delete parameterSet1;
 	if(parameterSet2 != NULL)
 		delete parameterSet2;
-	if(processViewerDlg != NULL)
-		delete processViewerDlg;
 }
 
 BOOL CMeshEditorDoc::OnNewDocument()
@@ -197,6 +198,8 @@ void CMeshEditorDoc::OnFileOpen()
 	tempString2 = tempString2 + "   FaceNum: " + tempString1;
 	pChild->SetWindowTextA(tempString2);
 
+	smoother->setPolyMesh(polyMesh);
+	polyMesh->computeVertexLink();                   //计算所有顶点的邻近点及个数
 	//设置显示模式，并显示
 	mode = FLAT_MODE;
 	drawFun();
@@ -257,20 +260,55 @@ void CMeshEditorDoc::OnWireFrame()
 	this->drawFun();
 }
 
+//采用拉普拉斯流方法进行平滑
 void CMeshEditorDoc::OnSmoothingLaplacianflow()
 {
-	// TODO: 在此添加命令处理程序代码
+	if(polyMesh == NULL)
+	{
+		::AfxMessageBox(_T("Please read file first, then you can do Laplacian flow fairing!"));
+		return;
+	}
+	if(parameterSet1->DoModal() == IDOK)
+	{
+		//设置迭代过程的进程显示
+		processViewerDlg = new ProcessViewerDlg();
+		POSITION pos = GetFirstViewPosition();
+		CMeshEditorView* pView = (CMeshEditorView*)GetNextView(pos);
+		processViewerDlg->Create(IDD_PROCESSVIEWER, pView);
+		processViewerDlg->processCtrl.SetRange(0, parameterSet1->iters1);
+		processViewerDlg->processCtrl.SetStep(1);
+		processViewerDlg->processCtrl.SetPos(0);
+		processViewerDlg->ShowWindow(SW_SHOW);
+
+		//进行平滑前的一些准备
+		double initVolume = polyMesh->computeVolume();   //模型原始的体积
+		for(int i=0;i<parameterSet1->iters1;i++)
+		{
+			smoother->laplacianFlow(parameterSet1->weightSet1,parameterSet1->stepSize1);
+			processViewerDlg->processCtrl.StepIt();
+			if(parameterSet1->isVolumePreservation1)       //如果保体积
+			{
+				double curVolume = polyMesh->computeVolume();   //模型当前的体积
+				polyMesh->rescale(pow(initVolume/curVolume,1.0/3.0));
+			}
+			polyMesh->computeFaceNormal();
+			polyMesh->computeNormal();
+			drawFun();
+		}
+		processViewerDlg->ShowWindow(SW_HIDE);
+		delete processViewerDlg;
+	}
 }
 
+//使用隐式平均曲率流的方法进行平滑
 void CMeshEditorDoc::OnSmoothingMeancurvatureflow()
 {
-	smoother = new Smoother();
 	if(polyMesh == NULL)
 	{
 		::AfxMessageBox(_T("Please read file first, then you can do implicit curvature flow fairing!"));
 		return;
 	}
-	parameterSet2 = new ParameterSetDlg2();
+
 	if(parameterSet2->DoModal() == IDOK) 
 	{
 		//设置迭代过程的进程显示
@@ -284,8 +322,6 @@ void CMeshEditorDoc::OnSmoothingMeancurvatureflow()
 		processViewerDlg->ShowWindow(SW_SHOW);
 
 		//进行平滑前的一些准备
-		smoother->setPolyMesh(polyMesh);
-		polyMesh->computeVertexLink();                   //计算所有顶点的邻近点及个数
 		double initVolume = polyMesh->computeVolume();   //模型原始的体积
 		for(int i=0;i<parameterSet2->iters2;i++)
 		{
@@ -297,8 +333,10 @@ void CMeshEditorDoc::OnSmoothingMeancurvatureflow()
 				polyMesh->rescale(pow(initVolume/curVolume,1.0/3.0));
 			}
 			polyMesh->computeFaceNormal();
+			polyMesh->computeNormal();
 			drawFun();
 		}
 		processViewerDlg->ShowWindow(SW_HIDE);
+		delete processViewerDlg;
 	}
 }

@@ -13,7 +13,7 @@ IMPLEMENT_DYNAMIC(ParameterSetDlg2, CDialogEx)
 
 ParameterSetDlg2::ParameterSetDlg2(CWnd* pParent /*=NULL*/)
 	: CDialogEx(ParameterSetDlg2::IDD, pParent)
-	, iters2(3)
+	, iters2(5)
 	, stepSize2(0.1)
 	, isVolumePreservation2(TRUE)
 {

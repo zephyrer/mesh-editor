@@ -6,6 +6,7 @@
 #pragma once
 #include "FileManager.h"
 #include "Smoother.h"
+#include "ParameterSetDlg1.h"
 #include "ParameterSetDlg2.h"
 #include "ProcessViewerDlg.h"
 
@@ -58,7 +59,8 @@ private:
 	CString title;                   //存放的是窗口标题
 	PolyMesh *polyMesh;              //多边形化对象
 	Smoother *smoother;              //平滑操作类
-	ParameterSetDlg2 *parameterSet2;   //平滑参数设置
+	ParameterSetDlg1 *parameterSet1;   
+	ParameterSetDlg2 *parameterSet2;     //平滑参数设置
 	ProcessViewerDlg *processViewerDlg;    //迭代过程显示类 
 
 	//My Defined Functions

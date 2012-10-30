@@ -13,6 +13,15 @@ Smoother::~Smoother()
 
 }
 
+float Smoother::distance(float *vertex1,float *vertex2)
+{
+	float temp[3];
+	temp[0] = vertex1[0]-vertex2[0];
+	temp[1] = vertex1[1]-vertex2[1];
+	temp[2] = vertex1[2]-vertex2[2];
+	return sqrt(temp[0]*temp[0]+temp[1]*temp[1]+temp[2]*temp[2]);
+}
+
 void Smoother::setPolyMesh(PolyMesh* _polyMesh)
 {
 	polyMesh = _polyMesh;
@@ -168,3 +177,77 @@ void Smoother::implicitMeanCurvatureFlow(float _dt)
 	delete[] new_vertex;
 	delete pbcg;
 } 
+
+void Smoother::laplacianFlow(int _weightSet1,float _dt)
+{
+	int vertexN = polyMesh->getVertexN();             //顶点个数
+	int *isBound = polyMesh->isBound;                 //每个点的类型（内部，边界，孤立点）
+	float (*vertex)[3] = polyMesh->vertex;            //所有顶点的坐标
+	int *degreeV = polyMesh->degreeV;                 //记录每个顶点的相邻顶点的个数
+	int **vertexLinkV = polyMesh->vertexLinkV;        //记录所有顶点的所有相邻顶点的下标
+           
+	if(_weightSet1 == -1)            //此时没有选择相邻点的权重
+		return;     
+	else if(_weightSet1 == 0)        //此时选中wi=1
+	{
+		for(int i=0;i<vertexN;i++)
+		{
+			if(degreeV[i] != 0 && isBound[i] != BOUNDARY && isBound[i] != NONMANIFOLD)     //如果该顶点不是边界同时不是孤立点
+			{
+				float temp[3] = {0.0,0.0,0.0};             //x,y,z轴
+				for(int j=0;j<degreeV[i];j++)
+				{
+					temp[0] = temp[0]+vertex[vertexLinkV[i][j]][0];
+					temp[1] = temp[1]+vertex[vertexLinkV[i][j]][1];
+					temp[2] = temp[2]+vertex[vertexLinkV[i][j]][2];
+				}
+				temp[0] = temp[0]/degreeV[i];
+				temp[1] = temp[1]/degreeV[i];
+				temp[2] = temp[2]/degreeV[i];
+				//计算U0
+				temp[0] = temp[0] - vertex[i][0];
+				temp[1] = temp[1] - vertex[i][1];
+				temp[2] = temp[2] - vertex[i][2];
+				//计算新的顶点的位置
+				vertex[i][0] = vertex[i][0] + _dt*temp[0];
+				vertex[i][1] = vertex[i][1] + _dt*temp[1];
+				vertex[i][2] = vertex[i][2] + _dt*temp[2];
+			}
+		}
+	}
+	else if(_weightSet1 == 1)        //此时选中wi=1/distance
+	{
+		for(int i=0;i<vertexN;i++)
+		{
+			if(degreeV[i] != 0 && isBound[i] != BOUNDARY && isBound[i] != NONMANIFOLD)     //如果该顶点不是边界同时不是孤立点
+			{
+				float temp[3] = {0.0,0.0,0.0};             //x,y,z轴
+				float totalWeight = 0.0;
+				for(int j=0;j<degreeV[i];j++)
+				{
+					//计算该点的每个邻近点所对应的权重
+					float weight = distance(vertex[i],vertex[vertexLinkV[i][j]]);
+					if(weight == 0.0)
+						continue;
+					else 
+						weight = 1.0/weight;
+					totalWeight = totalWeight+weight;
+					temp[0] = temp[0]+weight*vertex[vertexLinkV[i][j]][0];
+					temp[1] = temp[1]+weight*vertex[vertexLinkV[i][j]][1];
+					temp[2] = temp[2]+weight*vertex[vertexLinkV[i][j]][2];
+				}
+				temp[0] = temp[0]/totalWeight;
+				temp[1] = temp[1]/totalWeight;
+				temp[2] = temp[2]/totalWeight;
+				//计算U0
+				temp[0] = temp[0] - vertex[i][0];
+				temp[1] = temp[1] - vertex[i][1];
+				temp[2] = temp[2] - vertex[i][2];
+				//计算新的顶点的位置
+				vertex[i][0] = vertex[i][0] + _dt*temp[0];
+				vertex[i][1] = vertex[i][1] + _dt*temp[1];
+				vertex[i][2] = vertex[i][2] + _dt*temp[2];
+			}
+		}		
+	}
+}
