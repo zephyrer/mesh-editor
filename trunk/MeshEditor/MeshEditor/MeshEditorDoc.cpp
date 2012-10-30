@@ -271,7 +271,7 @@ void CMeshEditorDoc::OnSmoothingMeancurvatureflow()
 		return;
 	}
 	parameterSet2 = new ParameterSetDlg2();
-	if(parameterSet2->DoModal() == IDOK)
+	if(parameterSet2->DoModal() == IDOK) 
 	{
 		//设置迭代过程的进程显示
 		processViewerDlg = new ProcessViewerDlg();
