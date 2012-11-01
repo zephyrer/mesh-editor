@@ -108,6 +108,9 @@
     <ClInclude Include="MeshEditorView.h" />
     <ClInclude Include="ParameterSetDlg1.h" />
     <ClInclude Include="ParameterSetDlg2.h" />
+    <ClInclude Include="ParameterSetDlg3.h" />
+    <ClInclude Include="ParameterSetDlg4.h" />
+    <ClInclude Include="ParameterSetDlg5.h" />
     <ClInclude Include="PBCG.h" />
     <ClInclude Include="PolyMesh.h" />
     <ClInclude Include="ProcessViewerDlg.h" />
@@ -125,6 +128,9 @@
     <ClCompile Include="MeshEditorView.cpp" />
     <ClCompile Include="ParameterSetDlg1.cpp" />
     <ClCompile Include="ParameterSetDlg2.cpp" />
+    <ClCompile Include="ParameterSetDlg3.cpp" />
+    <ClCompile Include="ParameterSetDlg4.cpp" />
+    <ClCompile Include="ParameterSetDlg5.cpp" />
     <ClCompile Include="PBCG.cpp" />
     <ClCompile Include="PolyMesh.cpp" />
     <ClCompile Include="ProcessViewerDlg.cpp" />
