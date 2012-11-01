@@ -14,7 +14,7 @@ IMPLEMENT_DYNAMIC(ParameterSetDlg5, CDialogEx)
 ParameterSetDlg5::ParameterSetDlg5(CWnd* pParent /*=NULL*/)
 	: CDialogEx(ParameterSetDlg5::IDD, pParent)
 	, iters5(5)
-	, stepSize5((float)0.1)
+	, stepSize5((float)0.02)
 	, isVolumePreservation5(TRUE)
 {
 
