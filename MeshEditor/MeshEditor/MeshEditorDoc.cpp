@@ -23,10 +23,13 @@ IMPLEMENT_DYNCREATE(CMeshEditorDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CMeshEditorDoc, CDocument)
 	ON_COMMAND(ID_FILE_OPEN, &CMeshEditorDoc::OnFileOpen)
-	ON_COMMAND(ID_SMOOTHING_MEANCURVATUREFLOW, &CMeshEditorDoc::OnSmoothingMeancurvatureflow)
+	ON_COMMAND(ID_SMOOTHING_MEANCURVATUREFLOW, &CMeshEditorDoc::OnSmoothingImplicitMeancurvatureflow)
 	ON_COMMAND(ID_SMOOTHING_LAPLACIANFLOW, &CMeshEditorDoc::OnSmoothingLaplacianflow)
 	ON_COMMAND(ID_VISUALIZATION_FLATSHADING, &CMeshEditorDoc::OnFlatShade)
 	ON_COMMAND(ID_VISUALIZATION_WIREFRAME, &CMeshEditorDoc::OnWireFrame)
+	ON_COMMAND(ID_SMOOTHING_BILAPLACIANFLOWBYKOBBELT, &CMeshEditorDoc::OnSmoothingBilaplacianflowbykobbelt)
+	ON_COMMAND(ID_SMOOTHING_EXPLICITMEANCURVATUREFLOW, &CMeshEditorDoc::OnSmoothingExplicitmeancurvatureflow)
+	ON_COMMAND(ID_SMOOTHING_TAUBINSMOOTHING, &CMeshEditorDoc::OnSmoothingTaubinsmoothing)
 END_MESSAGE_MAP()
 
 //For console:print some information
@@ -41,7 +44,7 @@ void InitConsole()
 	nRet= _open_osfhandle((long)GetStdHandle(STD_OUTPUT_HANDLE), _O_TEXT);  
 	fp = _fdopen(nRet, "w");  
 	*stdout = *fp;  
-	setvbuf(stdout, NULL, _IONBF, 0);  
+	setvbuf(stdout, NULL, _IONBF, 0); 
 }*/
 //=====================================================================================
 
@@ -49,11 +52,14 @@ void InitConsole()
 
 CMeshEditorDoc::CMeshEditorDoc()
 {
-//  InitConsole();
+//	InitConsole();
 	polyMesh = NULL;
 	smoother = new Smoother();
 	parameterSet1 = new ParameterSetDlg1();
 	parameterSet2 = new ParameterSetDlg2();
+	parameterSet3 = new ParameterSetDlg3();
+	parameterSet4 = new ParameterSetDlg4();
+	parameterSet5 = new ParameterSetDlg5();
 	processViewerDlg = NULL;
 }
 
@@ -67,6 +73,12 @@ CMeshEditorDoc::~CMeshEditorDoc()
 		delete parameterSet1;
 	if(parameterSet2 != NULL)
 		delete parameterSet2;
+	if(parameterSet3 != NULL)
+		delete parameterSet3;
+	if(parameterSet4 != NULL)
+		delete parameterSet4;
+	if(parameterSet5 != NULL)
+		delete parameterSet5;
 }
 
 BOOL CMeshEditorDoc::OnNewDocument()
@@ -300,8 +312,8 @@ void CMeshEditorDoc::OnSmoothingLaplacianflow()
 	}
 }
 
-//使用隐式平均曲率流的方法进行平滑
-void CMeshEditorDoc::OnSmoothingMeancurvatureflow()
+//采用显式平均曲率流的方法进行平滑
+void CMeshEditorDoc::OnSmoothingExplicitmeancurvatureflow()
 {
 	if(polyMesh == NULL)
 	{
@@ -325,9 +337,136 @@ void CMeshEditorDoc::OnSmoothingMeancurvatureflow()
 		double initVolume = polyMesh->computeVolume();   //模型原始的体积
 		for(int i=0;i<parameterSet2->iters2;i++)
 		{
-			smoother->implicitMeanCurvatureFlow(parameterSet2->stepSize2);
+			smoother->explicitMeanCurvatureFlow(parameterSet2->stepSize2);
 			processViewerDlg->processCtrl.StepIt();
 			if(parameterSet2->isVolumePreservation2)       //如果保体积
+			{
+				double curVolume = polyMesh->computeVolume();   //模型当前的体积
+				polyMesh->rescale(pow(initVolume/curVolume,1.0/3.0));
+			}
+			polyMesh->computeFaceNormal();
+			polyMesh->computeNormal();
+			drawFun();
+		}
+		processViewerDlg->ShowWindow(SW_HIDE);
+		delete processViewerDlg;
+	}
+}
+
+//采用二次拉普拉斯方法进行平滑
+void CMeshEditorDoc::OnSmoothingBilaplacianflowbykobbelt()
+{
+	// TODO: 在此添加命令处理程序代码
+	if(polyMesh == NULL)
+	{
+		::AfxMessageBox(_T("Please read file first, then you can do Bilaplacian flow by Kobbelt fairing!"));
+		return;
+	}
+	if(parameterSet3->DoModal() == IDOK)
+	{
+		//设置迭代过程的进程显示
+		processViewerDlg = new ProcessViewerDlg();
+		POSITION pos = GetFirstViewPosition();
+		CMeshEditorView* pView = (CMeshEditorView*)GetNextView(pos);
+		processViewerDlg->Create(IDD_PROCESSVIEWER, pView);
+		processViewerDlg->processCtrl.SetRange(0, parameterSet3->iters3);
+		processViewerDlg->processCtrl.SetStep(1);
+		processViewerDlg->processCtrl.SetPos(0);
+		processViewerDlg->ShowWindow(SW_SHOW);
+
+		//进行平滑前的一些准备
+		double initVolume = polyMesh->computeVolume();   //模型原始的体积
+		for(int i=0;i<parameterSet3->iters3;i++)
+		{
+			smoother->bilaplacianFlow(parameterSet3->weigthSet3,parameterSet3->stepSize3);
+			processViewerDlg->processCtrl.StepIt();
+			if(parameterSet3->isVolumePreservation3)       //如果保体积
+			{
+				double curVolume = polyMesh->computeVolume();   //模型当前的体积
+				polyMesh->rescale(pow(initVolume/curVolume,1.0/3.0));
+			}
+			polyMesh->computeFaceNormal();
+			polyMesh->computeNormal();
+			drawFun();
+		}
+		processViewerDlg->ShowWindow(SW_HIDE);
+		delete processViewerDlg;
+	}
+}
+
+//采用Taubin平滑方法进行平滑
+void CMeshEditorDoc::OnSmoothingTaubinsmoothing()
+{
+	if(polyMesh == NULL)
+	{
+		::AfxMessageBox(_T("Please read file first, then you can do Taubin smoothing!"));
+		return;
+	}
+	if(parameterSet4->DoModal() == IDOK)
+	{
+		if(_tstof(parameterSet4->lambda) >= parameterSet4->mu)
+		{
+			::AfxMessageBox("Lambda must be less than mu, please input lambda again！");
+			return;
+		}
+		//设置迭代过程的进程显示
+		processViewerDlg = new ProcessViewerDlg();
+		POSITION pos = GetFirstViewPosition();
+		CMeshEditorView* pView = (CMeshEditorView*)GetNextView(pos);
+		processViewerDlg->Create(IDD_PROCESSVIEWER, pView);
+		processViewerDlg->processCtrl.SetRange(0, parameterSet4->iters4);
+		processViewerDlg->processCtrl.SetStep(1);
+		processViewerDlg->processCtrl.SetPos(0);
+		processViewerDlg->ShowWindow(SW_SHOW);
+
+		//进行平滑前的一些准备
+		double initVolume = polyMesh->computeVolume();   //模型原始的体积
+		for(int i=0;i<parameterSet4->iters4;i++)
+		{
+			smoother->taubinSmoothing(parameterSet4->weightSet4,_tstof(parameterSet4->lambda),parameterSet4->mu);
+			processViewerDlg->processCtrl.StepIt();
+			if(parameterSet4->isVolumePreservation4)       //如果保体积
+			{
+				double curVolume = polyMesh->computeVolume();   //模型当前的体积
+				polyMesh->rescale(pow(initVolume/curVolume,1.0/3.0));
+			}
+			polyMesh->computeFaceNormal();
+			polyMesh->computeNormal();
+			drawFun();
+		}
+		processViewerDlg->ShowWindow(SW_HIDE);
+		delete processViewerDlg;
+	}
+}
+
+//使用隐式平均曲率流的方法进行平滑
+void CMeshEditorDoc::OnSmoothingImplicitMeancurvatureflow()
+{
+	if(polyMesh == NULL)
+	{
+		::AfxMessageBox(_T("Please read file first, then you can do implicit curvature flow fairing!"));
+		return;
+	}
+
+	if(parameterSet5->DoModal() == IDOK) 
+	{
+		//设置迭代过程的进程显示
+		processViewerDlg = new ProcessViewerDlg();
+		POSITION pos = GetFirstViewPosition();
+		CMeshEditorView* pView = (CMeshEditorView*)GetNextView(pos);
+		processViewerDlg->Create(IDD_PROCESSVIEWER, pView);
+		processViewerDlg->processCtrl.SetRange(0, parameterSet5->iters5);
+		processViewerDlg->processCtrl.SetStep(1);
+		processViewerDlg->processCtrl.SetPos(0);
+		processViewerDlg->ShowWindow(SW_SHOW);
+
+		//进行平滑前的一些准备
+		double initVolume = polyMesh->computeVolume();   //模型原始的体积
+		for(int i=0;i<parameterSet5->iters5;i++)
+		{
+			smoother->implicitMeanCurvatureFlow(parameterSet5->stepSize5);
+			processViewerDlg->processCtrl.StepIt();
+			if(parameterSet5->isVolumePreservation5)       //如果保体积
 			{
 				double curVolume = polyMesh->computeVolume();   //模型当前的体积
 				polyMesh->rescale(pow(initVolume/curVolume,1.0/3.0));
