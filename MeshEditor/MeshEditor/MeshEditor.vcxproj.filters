@@ -13,17 +13,17 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="源文件\smoothing">
-      <UniqueIdentifier>{2f38ae79-a2b4-432f-8f26-9ac88264b8e4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\smoothing">
-      <UniqueIdentifier>{2d8cd0bd-d7c6-4832-93d5-949b02abb74e}</UniqueIdentifier>
+    <Filter Include="头文件\smooth">
+      <UniqueIdentifier>{9ebcba24-7f43-4b57-b905-846fce9a0075}</UniqueIdentifier>
     </Filter>
     <Filter Include="头文件\common files">
-      <UniqueIdentifier>{071c7a66-42fb-4b57-a29e-ffad5b08e6bd}</UniqueIdentifier>
+      <UniqueIdentifier>{309a91fb-aaca-414b-ba47-b3ae5e7632b5}</UniqueIdentifier>
     </Filter>
     <Filter Include="源文件\common files">
-      <UniqueIdentifier>{962b067e-bb92-436d-946b-e1ac59d9b339}</UniqueIdentifier>
+      <UniqueIdentifier>{c6071208-d5af-4a63-8f21-c8cb055e5b9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\smooth files">
+      <UniqueIdentifier>{7cb049ef-69ca-4526-b2ec-ddb1d581862f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -63,41 +63,38 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ParameterSetDlg1.h">
+      <Filter>头文件\smooth</Filter>
+    </ClInclude>
     <ClInclude Include="ParameterSetDlg5.h">
-      <Filter>头文件\smoothing</Filter>
-    </ClInclude>
-    <ClInclude Include="ParameterSetDlg4.h">
-      <Filter>头文件\smoothing</Filter>
-    </ClInclude>
-    <ClInclude Include="ParameterSetDlg3.h">
-      <Filter>头文件\smoothing</Filter>
+      <Filter>头文件\smooth</Filter>
     </ClInclude>
     <ClInclude Include="ParameterSetDlg2.h">
-      <Filter>头文件\smoothing</Filter>
+      <Filter>头文件\smooth</Filter>
     </ClInclude>
-    <ClInclude Include="ParameterSetDlg1.h">
-      <Filter>头文件\smoothing</Filter>
+    <ClInclude Include="ParameterSetDlg3.h">
+      <Filter>头文件\smooth</Filter>
     </ClInclude>
-    <ClInclude Include="ProcessViewerDlg.h">
-      <Filter>头文件\smoothing</Filter>
-    </ClInclude>
-    <ClInclude Include="Smoother.h">
-      <Filter>头文件\smoothing</Filter>
-    </ClInclude>
-    <ClInclude Include="PBCG.h">
-      <Filter>头文件\common files</Filter>
+    <ClInclude Include="ParameterSetDlg4.h">
+      <Filter>头文件\smooth</Filter>
     </ClInclude>
     <ClInclude Include="FileManager.h">
+      <Filter>头文件\common files</Filter>
+    </ClInclude>
+    <ClInclude Include="PBCG.h">
       <Filter>头文件\common files</Filter>
     </ClInclude>
     <ClInclude Include="PolyMesh.h">
       <Filter>头文件\common files</Filter>
     </ClInclude>
+    <ClInclude Include="Smoother.h">
+      <Filter>头文件\smooth</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessViewerDlg.h">
+      <Filter>头文件\smooth</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MeshEditor.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -113,35 +110,38 @@
     <ClCompile Include="MeshEditorView.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ParameterSetDlg1.cpp">
-      <Filter>源文件\smoothing</Filter>
-    </ClCompile>
-    <ClCompile Include="ParameterSetDlg2.cpp">
-      <Filter>源文件\smoothing</Filter>
-    </ClCompile>
-    <ClCompile Include="ParameterSetDlg3.cpp">
-      <Filter>源文件\smoothing</Filter>
-    </ClCompile>
-    <ClCompile Include="ParameterSetDlg4.cpp">
-      <Filter>源文件\smoothing</Filter>
-    </ClCompile>
-    <ClCompile Include="ParameterSetDlg5.cpp">
-      <Filter>源文件\smoothing</Filter>
-    </ClCompile>
-    <ClCompile Include="ProcessViewerDlg.cpp">
-      <Filter>源文件\smoothing</Filter>
-    </ClCompile>
-    <ClCompile Include="Smoother.cpp">
-      <Filter>源文件\smoothing</Filter>
+    <ClCompile Include="PBCG.cpp">
+      <Filter>源文件\common files</Filter>
     </ClCompile>
     <ClCompile Include="PolyMesh.cpp">
       <Filter>源文件\common files</Filter>
     </ClCompile>
-    <ClCompile Include="PBCG.cpp">
-      <Filter>源文件\common files</Filter>
-    </ClCompile>
     <ClCompile Include="FileManager.cpp">
       <Filter>源文件\common files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParameterSetDlg1.cpp">
+      <Filter>源文件\smooth files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParameterSetDlg5.cpp">
+      <Filter>源文件\smooth files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParameterSetDlg2.cpp">
+      <Filter>源文件\smooth files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParameterSetDlg3.cpp">
+      <Filter>源文件\smooth files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParameterSetDlg4.cpp">
+      <Filter>源文件\smooth files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshEditor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Smoother.cpp">
+      <Filter>源文件\smooth files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessViewerDlg.cpp">
+      <Filter>源文件\smooth files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
