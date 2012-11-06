@@ -9,6 +9,7 @@
 //多边形网格类
 class PolyMesh
 {
+//for common
 private:
 	int vertexN;      //顶点个数
 	int faceN;        //面的个数
@@ -17,13 +18,10 @@ public:
 	int (*face)[3];            //存放所有面对应的三个顶点对应的顶点的下标
 	float (*normal)[3];        //每个点对应的法向量
 	float (*normal_f)[3];      //面的法向量
-	int **vertexLinkV;         //记录顶点所连接的所有其它顶点的下标(可以重复)
-	int **vertexLinkF;         //记录顶点所属于的所有的面
-	int *degreeV;              //顶点度数(即与该顶点1-ring的顶点的个数)
-	int *degreeF;              //包含当前顶点的面的个数
-	int *isBound;              //判断每个顶点所属的类别（isBound==INNER,即顶点处于内部；isBound==BOUNDARY,即顶点处于边界；isBound==ISOLATED,即顶点是孤立点）
-
+	float maxBoundingBox[3];   //存放所有顶点中X,Y,Z中最大的三个值
+	float minBoundingBox[3];   //存放所有顶点中X,Y,Z中最小的三个值
 public:
+//for common
 	PolyMesh();
 	~PolyMesh();
 	int getVertexN();
@@ -34,6 +32,16 @@ public:
 	void setIndexFace(int _index,int _vertexIndex[3]);    //设置下标为_index处的面的三个顶点所对应的点的下标
 	void computeNormal();                                 //计算每个点的法向量
 	void computeFaceNormal();                             //计算面的法向量
+	void computeBoundingBox();                            //计算所有顶点的边界
+
+public:
+//for smoothing
+	int **vertexLinkV;         //记录顶点所连接的所有其它顶点的下标(可以重复)
+	int **vertexLinkF;         //记录顶点所属于的所有的面
+	int *degreeV;              //顶点度数(即与该顶点1-ring的顶点的个数)
+	int *degreeF;              //包含当前顶点的面的个数
+	int *isBound;              //判断每个顶点所属的类别（isBound==INNER,即顶点处于内部；isBound==BOUNDARY,即顶点处于边界；isBound==ISOLATED,即顶点是孤立点）
+//for smoothing
 	void computeVertexLink();                             //计算顶点的连接关系 
 	/*在函数computeVertexLink()中已经得出两个变量vertexFaceN和vertexLinkVertexs,其中vertexFaceN记录每个顶点属于的面的个数，
 	vertexLinkVertexs按照一定的结构记录每个顶点相邻的顶点的下标及每个顶点属于的面的下标。现在，需要经过函数sortVertexLink()的
@@ -44,11 +52,27 @@ public:
 	double computeVolume();                               //计算当前模型的体积
 	void rescale(double _rate);                           //将模型中的所有点按照_rate的比例进行扩大或者缩小
 
+//for resizing
+public:
+	float (*vulnerability)[3];             //每个面在三个方向上的脆弱性
+private:
+	float (*slippage)[3];                  //每个面在三个方向上的滑移性
+	float (*normalCurvature)[3];           //每个面在三个方向上的法向量的曲率的大小
+public:
+//for resizing
+	float lengthOfPoints(float *_point1,float *_point2);                 //计算两个顶点之间的距离
+	bool isFaceNeighboring(int *_temp1,int *_temp2,float *_length);      //判断两个面是否相邻(参数存放的是面的三个顶点的下标)和相邻边的长度
+	void computeSlippage();                               //计算每个面的滑移性
+	void computeNormalCurvature();                        //计算每个面的法向量曲率的大小
+	void computeVulnerability();                          //计算每个面的脆弱性的大小
+
+//for common
 	//VEC是求P1指向P2的向量
 	//CROSS是求与向量V1和V2垂直的向量
 	//LENGTH是向量N的模
 	//AREA是求点P1、P2、P3围成的三角形的面积
 	//DOT是点乘
+public:
 	static inline double AREA(float p1[3], float p2[3], float p3[3])
 	{
 		double n[3];

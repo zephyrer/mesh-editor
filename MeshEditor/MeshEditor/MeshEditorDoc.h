@@ -81,4 +81,5 @@ public:
 	afx_msg void OnSmoothingBilaplacianflowbykobbelt();
 	afx_msg void OnSmoothingExplicitmeancurvatureflow();
 	afx_msg void OnSmoothingTaubinsmoothing();
+	afx_msg void OnResizingNonhomogenous();
 };

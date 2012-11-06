@@ -30,11 +30,12 @@ BEGIN_MESSAGE_MAP(CMeshEditorDoc, CDocument)
 	ON_COMMAND(ID_SMOOTHING_BILAPLACIANFLOWBYKOBBELT, &CMeshEditorDoc::OnSmoothingBilaplacianflowbykobbelt)
 	ON_COMMAND(ID_SMOOTHING_EXPLICITMEANCURVATUREFLOW, &CMeshEditorDoc::OnSmoothingExplicitmeancurvatureflow)
 	ON_COMMAND(ID_SMOOTHING_TAUBINSMOOTHING, &CMeshEditorDoc::OnSmoothingTaubinsmoothing)
+	ON_COMMAND(ID_RESIZING_NON, &CMeshEditorDoc::OnResizingNonhomogenous)
 END_MESSAGE_MAP()
 
 //For console:print some information
 //=====================================================================================
-/*#include <io.h>  
+#include <io.h>  
 #include <fcntl.h>  
 void InitConsole()  
 {  
@@ -45,14 +46,14 @@ void InitConsole()
 	fp = _fdopen(nRet, "w");  
 	*stdout = *fp;  
 	setvbuf(stdout, NULL, _IONBF, 0); 
-}*/
+}
 //=====================================================================================
 
 // CMeshEditorDoc construction/destruction
 
 CMeshEditorDoc::CMeshEditorDoc()
 {
-//	InitConsole();
+	InitConsole();
 	polyMesh = NULL;
 	smoother = new Smoother();
 	parameterSet1 = new ParameterSetDlg1();
@@ -478,4 +479,13 @@ void CMeshEditorDoc::OnSmoothingImplicitMeancurvatureflow()
 		processViewerDlg->ShowWindow(SW_HIDE);
 		delete processViewerDlg;
 	}
+}
+
+
+void CMeshEditorDoc::OnResizingNonhomogenous()
+{
+	// TODO: 在此添加命令处理程序代码
+	printf("开始执行\n");
+	polyMesh->computeVulnerability();
+	printf("执行结束\n");
 }
