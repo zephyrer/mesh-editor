@@ -25,6 +25,12 @@
     <Filter Include="源文件\smooth files">
       <UniqueIdentifier>{7cb049ef-69ca-4526-b2ec-ddb1d581862f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\resizing">
+      <UniqueIdentifier>{431bc567-ff1a-479d-b822-8ac57046e00a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\resizing">
+      <UniqueIdentifier>{91b581b1-bb46-44bc-87cb-5dcaef1220f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -93,6 +99,9 @@
     <ClInclude Include="ProcessViewerDlg.h">
       <Filter>头文件\smooth</Filter>
     </ClInclude>
+    <ClInclude Include="Resizer.h">
+      <Filter>头文件\resizing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -142,6 +151,9 @@
     </ClCompile>
     <ClCompile Include="ProcessViewerDlg.cpp">
       <Filter>源文件\smooth files</Filter>
+    </ClCompile>
+    <ClCompile Include="Resizer.cpp">
+      <Filter>源文件\resizing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

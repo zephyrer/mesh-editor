@@ -114,6 +114,7 @@
     <ClInclude Include="PBCG.h" />
     <ClInclude Include="PolyMesh.h" />
     <ClInclude Include="ProcessViewerDlg.h" />
+    <ClInclude Include="Resizer.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Smoother.h" />
     <ClInclude Include="stdafx.h" />
@@ -134,6 +135,7 @@
     <ClCompile Include="PBCG.cpp" />
     <ClCompile Include="PolyMesh.cpp" />
     <ClCompile Include="ProcessViewerDlg.cpp" />
+    <ClCompile Include="Resizer.cpp" />
     <ClCompile Include="Smoother.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

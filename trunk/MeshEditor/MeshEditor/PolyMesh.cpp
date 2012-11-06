@@ -15,6 +15,9 @@ PolyMesh::PolyMesh()
 	degreeV = NULL;
 	degreeF = NULL;
 	isBound = NULL;
+	vulnerability = NULL;
+	slippage = NULL;
+	normalCurvature = NULL;
 }
 
 PolyMesh::~PolyMesh()
@@ -37,6 +40,12 @@ PolyMesh::~PolyMesh()
 		delete degreeF;
 	if(isBound != NULL)
 		delete isBound;
+	if(vulnerability != NULL)
+		delete[] vulnerability;
+	if(slippage != NULL)
+		delete[] slippage;
+	if(normalCurvature != NULL)
+		delete[] normalCurvature;
 }
 
 int PolyMesh::getVertexN()
@@ -434,5 +443,255 @@ void PolyMesh::rescale(double _rate)
 		vertex[i][0] = (float)(_rate*vertex[i][0]);
 		vertex[i][1] = (float)(_rate*vertex[i][1]);;
 		vertex[i][2] = (float)(_rate*vertex[i][2]);
+	}
+}
+
+void PolyMesh::computeBoundingBox()
+{
+	maxBoundingBox[0] = minBoundingBox[0] = vertex[0][0];
+	maxBoundingBox[1] = minBoundingBox[1] = vertex[0][1];
+	maxBoundingBox[2] = minBoundingBox[2] = vertex[0][2];
+
+	//遍历所有的顶点一遍
+	for(int i=0;i<vertexN;i++)
+	{
+		for(int j=0;j<3;j++)
+		{
+			if(maxBoundingBox[j] < vertex[i][j])
+				maxBoundingBox[j] = vertex[i][j];
+			if(minBoundingBox[j] > vertex[i][j])
+				minBoundingBox[j] = vertex[i][j];
+		}
+	}
+	printf("输出整个模型的边界点：\n");
+	printf("min[0] = %f,min[1] = %f,min[2] = %f\n",minBoundingBox[0],minBoundingBox[1],minBoundingBox[2]);
+	printf("max[0] = %f,max[1] = %f,max[2] = %f\n",maxBoundingBox[0],maxBoundingBox[1],maxBoundingBox[2]);
+}
+
+float PolyMesh::lengthOfPoints(float *_point1,float *_point2)
+{
+	float temp[3];
+	PolyMesh::VEC(temp,_point1,_point2);
+	return (float)(PolyMesh::LENGTH(temp));
+}
+
+bool PolyMesh::isFaceNeighboring(int *_temp1,int *_temp2,float *_length)
+{
+	//穷举
+	//_temp1[0] == _temp2[0]的情况下
+	if(_temp1[0] == _temp2[0] && _temp1[1] == _temp2[1])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[1]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+	if(_temp1[0] == _temp2[0] && _temp1[1] == _temp2[2])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[1]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+	if(_temp1[0] == _temp2[0] && _temp1[2] == _temp2[1])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[2]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+	if(_temp1[0] == _temp2[0] && _temp1[2] == _temp2[2])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[2]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+
+	//_temp1[0] == _temp2[1]的情况下
+	if(_temp1[0] == _temp2[1] && _temp1[1] == _temp2[0])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[1]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+	if(_temp1[0] == _temp2[1] && _temp1[1] == _temp2[2])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[1]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+	if(_temp1[0] == _temp2[1] && _temp1[2] == _temp2[0])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[2]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+	if(_temp1[0] == _temp2[1] && _temp1[2] == _temp2[2])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[2]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+
+	//_temp1[0]==_temp2[2]的情况下
+	if(_temp1[0] == _temp2[2] && _temp1[1] == _temp2[0])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[1]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+	if(_temp1[0] == _temp2[2] && _temp1[1] == _temp2[1])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[1]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+	if(_temp1[0] == _temp2[2] && _temp1[2] == _temp2[0])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[2]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+	if(_temp1[0] == _temp2[2] && _temp1[2] == _temp2[1])
+	{
+		float *temp1 = vertex[_temp1[0]];
+		float *temp2 = vertex[_temp1[2]];
+		*_length = lengthOfPoints(temp1,temp2);
+		return true;
+	}
+
+	//如果上述情况都不满足，则返回false
+	return false;
+}
+
+//当然，计算时X,Y,Z三个方向都要计算
+void PolyMesh::computeSlippage()
+{
+	//每个面的法向量可以计算出来
+	if(normal_f == NULL)                      //基本不会发生        
+		computeFaceNormal();
+	//为slippage变量申请空间
+	slippage = new float[faceN][3];
+	//将每个面的法向量投影到三个坐标轴上
+	for(int i=0;i<faceN;i++)
+	{ 
+		slippage[i][0] = fabs(normal_f[i][0]);      //法向量在X轴的投影
+		slippage[i][1] = fabs(normal_f[i][1]);      //法向量在Y轴的投影
+		slippage[i][2] = fabs(normal_f[i][2]);      //法向量在Z轴的投影(都是初始化过的，而且应该取绝对值)
+	}
+	//为了防止单个的面会产生极端的情况，可以将相邻的面按照一定的权重添加到当前面
+	//说明：工作量太大，同时不是那么重要，暂时不实现
+}
+
+//计算面的法向量的曲率
+//首先计算每个面的三个顶点的法向量曲率(平均化)，然后对三个顶点求平均
+void PolyMesh::computeNormalCurvature()
+{
+	double (*temp1)[3] = new double[vertexN][3];
+	for(int i=0;i<vertexN;i++)
+	{
+		temp1[i][0] = 0.0;
+		temp1[i][1] = 0.0;
+		temp1[i][2] = 0.0;
+		if(degreeV[i] != 0||isBound[i] != BOUNDARY||isBound[i] != NONMANIFOLD)     //此时要么是边界要么是孤立点
+		{
+			double A = 0.0;                          //用于存放顶点的周围的作用域的面积
+			for(int j=0;j<degreeV[i];j++)
+			{                                        //设当前的顶点为P
+				int t = vertexLinkV[i][j];                  //获得三角形的一个顶点的下标,记为Q
+				int s = vertexLinkV[i][(j+1)%degreeV[i]];   //获得三角形的另一个顶点的下标,记为R
+
+				float PQ[3],PR[3],QR[3];
+				PolyMesh::VEC(PQ,vertex[i],vertex[s]);    //向量PQ
+				PolyMesh::VEC(PR,vertex[i],vertex[t]);    //向量PR
+				PolyMesh::VEC(QR,vertex[s],vertex[t]);    //向量QR
+
+				double Ai = PolyMesh::AREA(vertex[i],vertex[s],vertex[t]);     //当前三角形的面积
+
+				if(Ai > 0.0)
+				{
+					A = A + Ai;
+					double dot1 = -PolyMesh::DOT(PQ,QR);    //向量PQ点乘向量QR
+					double dot2 = PolyMesh::DOT(PR,QR);     //向量PR点乘向量QR
+					double cot1 = 0.5*dot1/Ai;
+					double cot2 = 0.5*dot2/Ai;
+					temp1[i][0] = temp1[i][0] + cot1*PR[0] + cot2*PQ[0];
+					temp1[i][1] = temp1[i][1] + cot1*PR[1] + cot2*PQ[1];
+					temp1[i][2] = temp1[i][2] + cot1*PR[2] + cot2*PQ[2];
+				}
+			}
+			if(A > 0.0)
+			{
+				A = 4*A;
+				temp1[i][0] = temp1[i][0]/A;
+				temp1[i][1] = temp1[i][1]/A;
+				temp1[i][2] = temp1[i][2]/A;
+				//对temp[i][3]进行单位化
+				double length = LENGTH(temp1[i]);
+				if((float)length != 0)
+				{
+					temp1[i][0] = temp1[i][0]/length;
+					temp1[i][1] = temp1[i][1]/length;
+					temp1[i][2] = temp1[i][2]/length;
+				}
+				else 
+					temp1[i][0] = temp1[i][1] = temp1[i][2] = 0.0f;
+			}
+		}
+	}
+	//对每个面的三个顶点的法向量曲率值求平均，得到该面的法向量曲率
+	normalCurvature = new float[faceN][3];
+	for(int i=0;i<faceN;i++)
+	{
+		double temp2[3][3];                      //存储该面的三个顶点的法向量的曲率值(当然是X，Y，Z三个方向) 
+		for(int j=0;j<3;j++)
+		{
+			temp2[j][0] = temp1[face[i][j]][0];
+			temp2[j][1] = temp1[face[i][j]][1];
+			temp2[j][2] = temp1[face[i][j]][2];
+		}
+		//对这三个顶点求平均值
+		normalCurvature[i][0] = fabs((float)((temp2[0][0]+temp2[1][0]+temp2[2][0])/3.0f));
+		normalCurvature[i][1] = fabs((float)((temp2[0][1]+temp2[1][1]+temp2[2][1])/3.0f));
+		normalCurvature[i][2] = fabs((float)((temp2[0][2]+temp2[1][2]+temp2[2][2])/3.0f));
+	}
+	//释放资源
+	delete[] temp1;
+	//论文中：Prior to the computation,we segment the mesh along sharp arease to obtain more reliable results
+	//说明：我也不知道具体怎么做，貌似影响也不大，先不实现
+}
+
+//计算每个面的脆弱性
+void PolyMesh::computeVulnerability()
+{
+	//先求出每个面的slippage和normalCurvature的大小
+	computeSlippage();
+	computeNormalCurvature();
+	//申请空间
+	vulnerability = new float[faceN][3];
+	//计算出maxBoundingBox和minBoundingBox的值
+	computeBoundingBox();
+	//防止vulnerability的值为0
+	float clamp1 = 0.1f;
+	float clamp2 = 1.0f/3.0f*lengthOfPoints(maxBoundingBox,minBoundingBox);
+	float clamp = clamp1*clamp2;
+	for(int i=0;i<faceN;i++)
+	{
+		for(int j=0;j<3;j++)         //X,Y,Z方向
+		{
+			vulnerability[i][j] = (float)(slippage[i][j]*(1e-4+normalCurvature[i][j]));    //slippage和normal curvature都是绝对值，故此处不用加绝对值了
+			if(vulnerability[i][j] == 0.0f)
+			{
+				vulnerability[i][j] = clamp;
+			}
+		}
 	}
 }
