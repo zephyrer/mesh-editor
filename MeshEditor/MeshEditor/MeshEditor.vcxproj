@@ -20,7 +20,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -51,10 +51,15 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>C:\Program Files\taucs\src;C:\Program Files\taucs\build\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Program Files\taucs\lib\win32;C:\Program Files\taucs\external\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vcf2c.lib;libcblas.lib;libf77blas.lib;liblapack.lib;libmetis.lib;libatlas.lib;libtaucs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -115,6 +120,7 @@
     <ClInclude Include="PolyMesh.h" />
     <ClInclude Include="ProcessViewerDlg.h" />
     <ClInclude Include="Resizer.h" />
+    <ClInclude Include="ResizingParameterSetDlg1.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Smoother.h" />
     <ClInclude Include="stdafx.h" />
@@ -136,6 +142,7 @@
     <ClCompile Include="PolyMesh.cpp" />
     <ClCompile Include="ProcessViewerDlg.cpp" />
     <ClCompile Include="Resizer.cpp" />
+    <ClCompile Include="ResizingParameterSetDlg1.cpp" />
     <ClCompile Include="Smoother.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

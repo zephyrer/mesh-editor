@@ -102,6 +102,9 @@
     <ClInclude Include="Resizer.h">
       <Filter>头文件\resizing</Filter>
     </ClInclude>
+    <ClInclude Include="ResizingParameterSetDlg1.h">
+      <Filter>头文件\resizing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -153,6 +156,9 @@
       <Filter>源文件\smooth files</Filter>
     </ClCompile>
     <ClCompile Include="Resizer.cpp">
+      <Filter>源文件\resizing</Filter>
+    </ClCompile>
+    <ClCompile Include="ResizingParameterSetDlg1.cpp">
       <Filter>源文件\resizing</Filter>
     </ClCompile>
   </ItemGroup>

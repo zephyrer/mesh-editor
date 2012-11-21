@@ -6,11 +6,13 @@
 #pragma once
 #include "FileManager.h"
 #include "Smoother.h"
+#include "Resizer.h"
 #include "ParameterSetDlg1.h"
 #include "ParameterSetDlg2.h"
 #include "ParameterSetDlg3.h"
 #include "ParameterSetDlg4.h"
 #include "ParameterSetDlg5.h"
+#include "ResizingParameterSetDlg1.h"
 #include "ProcessViewerDlg.h"
 
 #define FLAT_MODE 0
@@ -62,12 +64,14 @@ private:
 	CString title;                   //存放的是窗口标题
 	PolyMesh *polyMesh;              //多边形化对象
 	Smoother *smoother;              //平滑操作类
+	Resizer *resizer;                //三维缩放类
 	ParameterSetDlg1 *parameterSet1;   
 	ParameterSetDlg2 *parameterSet2;     
 	ParameterSetDlg3 *parameterSet3;       
 	ParameterSetDlg4 *parameterSet4;
 	ParameterSetDlg5 *parameterSet5;       //平滑参数设置
 	ProcessViewerDlg *processViewerDlg;    //迭代过程显示类 
+	ResizingParameterSetDlg1 *resizingParameterSet1;    //三维缩放参数设置
 
 	//My Defined Functions
 public:
