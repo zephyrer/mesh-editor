@@ -56,11 +56,13 @@ CMeshEditorDoc::CMeshEditorDoc()
 	InitConsole();
 	polyMesh = NULL;
 	smoother = new Smoother();
+	resizer = new Resizer();
 	parameterSet1 = new ParameterSetDlg1();
 	parameterSet2 = new ParameterSetDlg2();
 	parameterSet3 = new ParameterSetDlg3();
 	parameterSet4 = new ParameterSetDlg4();
 	parameterSet5 = new ParameterSetDlg5();
+	resizingParameterSet1 = new ResizingParameterSetDlg1;
 	processViewerDlg = NULL;
 }
 
@@ -70,6 +72,8 @@ CMeshEditorDoc::~CMeshEditorDoc()
 		delete polyMesh;
 	if(smoother != NULL)
 		delete smoother;
+	if(resizer != NULL)
+		delete resizer;
 	if(parameterSet1 != NULL)
 		delete parameterSet1;
 	if(parameterSet2 != NULL)
@@ -80,6 +84,8 @@ CMeshEditorDoc::~CMeshEditorDoc()
 		delete parameterSet4;
 	if(parameterSet5 != NULL)
 		delete parameterSet5;
+	if(resizingParameterSet1 != NULL)
+		delete resizingParameterSet1;
 }
 
 BOOL CMeshEditorDoc::OnNewDocument()
@@ -210,9 +216,11 @@ void CMeshEditorDoc::OnFileOpen()
 	tempString1.Format("%d",polyMesh->getFaceN());
 	tempString2 = tempString2 + "   FaceNum: " + tempString1;
 	pChild->SetWindowTextA(tempString2);
-
+	//for smoothing
 	smoother->setPolyMesh(polyMesh);
 	polyMesh->computeVertexLink();                   //计算所有顶点的邻近点及个数
+	//for resizing
+	resizer->setPolyMesh(polyMesh);
 	//设置显示模式，并显示
 	mode = FLAT_MODE;
 	drawFun();
@@ -484,8 +492,34 @@ void CMeshEditorDoc::OnSmoothingImplicitMeancurvatureflow()
 
 void CMeshEditorDoc::OnResizingNonhomogenous()
 {
-	// TODO: 在此添加命令处理程序代码
-	printf("开始执行\n");
-	polyMesh->computeVulnerability();
-	printf("执行结束\n");
+	//如果还没有打开文件，首先提示用户打开文件
+	if(polyMesh == NULL)
+	{
+		::AfxMessageBox(_T("Please read file first, then you can do non-homogenous resizing!"));
+		return;
+	}
+	if(resizingParameterSet1->DoModal() == IDOK) 
+	{
+		printf("开始执行\n");
+		//获得三个方向的缩放量
+		float s[3]={resizingParameterSet1->resizingOfX,resizingParameterSet1->resizingOfY,resizingParameterSet1->resizingOfZ};
+		//计算face和cell的整体的关系
+		resizer->computeCellAndFaceRelationship();
+		//计算每个cell的vulnerability值
+		resizer->computeCellVulnerability();
+		//输出每个cell的vulnerability值
+		//	resizer->printCellVulnerability();
+		resizer->computeCellScale(s);
+		//输出每个cell的Phi值
+		//resizer->printCellPhi();
+		//resizer->printCellScale();
+		resizer->computeOldCellVertex();
+		resizer->computeNewCellVertex();
+		resizer->computeVertexInCell();
+		resizer->updateVertex();
+		polyMesh->computeNormal();
+		polyMesh->computeFaceNormal();
+		drawFun();
+		printf("执行结束\n");
+	}
 }

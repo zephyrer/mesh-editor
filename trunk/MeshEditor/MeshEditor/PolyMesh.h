@@ -54,14 +54,13 @@ public:
 
 //for resizing
 public:
-	float (*vulnerability)[3];             //每个面在三个方向上的脆弱性
+	double (*faceVulnerability)[3];             //每个面在三个方向上的脆弱性
 private:
-	float (*slippage)[3];                  //每个面在三个方向上的滑移性
-	float (*normalCurvature)[3];           //每个面在三个方向上的法向量的曲率的大小
+	double (*slippage)[3];                  //每个面在三个方向上的滑移性
+	double (*normalCurvature)[3];           //每个面在三个方向上的法向量的曲率的大小
 public:
 //for resizing
 	float lengthOfPoints(float *_point1,float *_point2);                 //计算两个顶点之间的距离
-	bool isFaceNeighboring(int *_temp1,int *_temp2,float *_length);      //判断两个面是否相邻(参数存放的是面的三个顶点的下标)和相邻边的长度
 	void computeSlippage();                               //计算每个面的滑移性
 	void computeNormalCurvature();                        //计算每个面的法向量曲率的大小
 	void computeVulnerability();                          //计算每个面的脆弱性的大小
